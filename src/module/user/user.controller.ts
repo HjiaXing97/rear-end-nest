@@ -19,7 +19,10 @@ export class UserController {
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
-
+  @Post("login")
+  login(@Body() loginParam: { user_name: string; password: string }) {
+    return this.userService.login(loginParam);
+  }
   @Get()
   findAll() {
     return this.userService.findAll();

@@ -1,7 +1,12 @@
 import { Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { JwtModule } from "@nestjs/jwt";
+import { APP_GUARD } from "@nestjs/core";
+
 import { PrismaModule, RedisModule } from "@/common";
-import { UserModule, RoleModule } from "./module";
+import { UserModule, RoleModule } from "@/module";
+import { LoginGuard } from "@/common/guard/login/login.guard";
+import EnvVariableEnum from "./static/envEnum";
 
 @Module({
   imports: [
@@ -9,12 +14,31 @@ import { UserModule, RoleModule } from "./module";
       isGlobal: true,
       envFilePath: "/.env"
     }),
+    JwtModule.registerAsync({
+      global: true,
+      useFactory: (configService: ConfigService) => {
+        return {
+          secret: configService.get(EnvVariableEnum.JWT_SECRET),
+          signOptions: {
+            expiresIn: configService.get(
+              EnvVariableEnum.JWT_ACCESS_TOKEN_EXPIRES
+            )
+          }
+        };
+      },
+      inject: [ConfigService]
+    }),
     PrismaModule,
     RedisModule,
     UserModule,
     RoleModule
   ],
   controllers: [],
-  providers: []
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: LoginGuard
+    }
+  ]
 })
 export class AppModule {}
