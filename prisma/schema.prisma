@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id           String   @id @default(uuid())
+  user_name    String   @unique @db.Char(50)
+  password     String   @db.Char(100)
+  real_name    String   @db.Char(100)
+  email        String   @db.Char(100)
+  phone_number String   @db.Char(100)
+  is_deleted   Boolean  @default(false)
+  is_frozen    Boolean  @default(false)
+  head_pic     String?  @db.Text()
+  create_time  DateTime @default(now())
+  update_time  DateTime @updatedAt
+  role         role?    @relation(fields: [roleId], references: [id])
+  roleId       String?
+}
+
+model role {
+  id          String            @id @default(uuid())
+  role_name   String            @unique @db.Char(50)
+  role_code   String            @unique @db.Char(50)
+  description String?           @db.Text()
+  is_deleted  Boolean           @default(false)
+  create_time DateTime          @default(now())
+  update_time DateTime          @updatedAt
+  user        user[]
+  permission  role_permission[]
+}
+
+model permission {
+  id              String            @id @default(uuid())
+  permission_name String            @unique @db.Char(50)
+  permission_code String            @unique @db.Char(50)
+  description     String?           @db.Text()
+  is_deleted      Boolean           @default(false)
+  create_time     DateTime          @default(now())
+  update_time     DateTime          @updatedAt
+  role            role_permission[]
+}
+
+model role_permission {
+  role         role?       @relation(fields: [roleId], references: [id])
+  roleId       String
+  permission   permission? @relation(fields: [permissionId], references: [id])
+  permissionId String
+
+  @@id([roleId, permissionId])
+}
