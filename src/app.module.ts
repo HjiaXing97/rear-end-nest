@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
 import { APP_GUARD } from "@nestjs/core";
 
-import { PrismaModule, RedisModule } from "@/common";
+import { PrismaModule, RedisModule, AlicloudModule } from "@/common";
 import { UserModule, RoleModule } from "@/module";
 import { LoginGuard } from "@/common/guard/login/login.guard";
 import EnvVariableEnum from "./static/envEnum";
@@ -31,7 +31,8 @@ import EnvVariableEnum from "./static/envEnum";
     PrismaModule,
     RedisModule,
     UserModule,
-    RoleModule
+    RoleModule,
+    AlicloudModule
   ],
   controllers: [],
   providers: [

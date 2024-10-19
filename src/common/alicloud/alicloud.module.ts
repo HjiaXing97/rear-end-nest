@@ -1,8 +1,10 @@
-import { Module } from "@nestjs/common";
+import { Global, Module } from "@nestjs/common";
 import { AlicloudService } from "./alicloud.service";
 
+@Global()
 @Module({
   controllers: [],
-  providers: [AlicloudService]
+  providers: [AlicloudService],
+  exports: [AlicloudService]
 })
 export class AlicloudModule {}

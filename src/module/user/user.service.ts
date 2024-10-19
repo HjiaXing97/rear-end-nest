@@ -7,6 +7,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { RedisService } from "@/common/redis/redis.service";
 import { PrismaService } from "@/common/prisma/prisma.service";
+import { AlicloudService } from "@/common/alicloud/alicloud.service";
 import EnvVariableEnum from "@/static/envEnum";
 
 import { md5 } from "@/utils/md5";
@@ -25,6 +26,9 @@ export class UserService {
   @Inject(ConfigService)
   private readonly configService: ConfigService;
 
+  @Inject(AlicloudService)
+  private readonly alicloudService: AlicloudService;
+
   async create(createUserDto: CreateUserDto) {
     const {
       phone_number,
@@ -32,6 +36,8 @@ export class UserService {
       user_name,
       password
     } = createUserDto;
+
+    await this.alicloudService.sendMessage(phone_number);
 
     /** 通过redis获取验证吗 */
     const captcha = await this.redisService.get(`captcha_${phone_number}`);
