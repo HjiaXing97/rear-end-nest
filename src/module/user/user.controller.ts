@@ -6,12 +6,14 @@ import {
   Patch,
   Param,
   Delete,
-  Inject
+  Inject,
+  Query
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { Public } from "@/common/decorators/public.decorators";
+import { Pagination } from "@/common/decorators/pagination.decorators";
 
 @Controller("user")
 export class UserController {
@@ -47,6 +49,24 @@ export class UserController {
 
   @Delete(":id")
   remove(@Param("id") id: string) {
-    return this.userService.remove(+id);
+    return this.userService.remove(id);
+  }
+
+  @Get("page/list")
+  pageList(
+    @Query("user_name") user_name: string,
+    @Query("real_name") real_name: string,
+    @Pagination()
+    pagination: {
+      skip: number;
+      take: number;
+    }
+  ) {
+    return this.userService.pageList(pagination, user_name, real_name);
+  }
+
+  @Get("frozen/:id")
+  frozen(@Param("id") id: string) {
+    return this.userService.frozen(id);
   }
 }

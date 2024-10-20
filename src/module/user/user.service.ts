@@ -136,7 +136,98 @@ export class UserService {
     });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async pageList(
+    pagination: { skip: number; take: number },
+    user_name: string,
+    real_name: string
+  ) {
+    /** 获取总条数 */
+    const total = await this.prismaService.user.count({
+      where: {
+        user_name: {
+          contains: user_name
+        },
+        real_name: {
+          contains: real_name
+        },
+        is_deleted: false,
+        is_frozen: false
+      }
+    });
+
+    /** 获取分页数据 */
+    const records = await this.prismaService.user.findMany({
+      where: {
+        user_name: {
+          contains: user_name
+        },
+        real_name: {
+          contains: real_name
+        },
+        is_deleted: false,
+        is_frozen: false
+      },
+      skip: pagination.skip,
+      take: pagination.take
+    });
+
+    /** 返回分当前页码 */
+    const currentPage = Math.ceil(pagination.skip / pagination.take) + 1;
+    const totalPages = Math.ceil(total / pagination.take);
+
+    return {
+      total,
+      currentPage,
+      totalPages,
+      records
+    };
+  }
+  async remove(id: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id
+      }
+    });
+
+    if (!user) throw new HttpException("用户不存在", HttpStatus.BAD_REQUEST);
+    if (user.is_deleted)
+      throw new HttpException("用户已删除", HttpStatus.BAD_REQUEST);
+
+    await this.prismaService.user.update({
+      where: {
+        id
+      },
+      data: {
+        is_deleted: true
+      }
+    });
+
+    return "删除成功";
+  }
+
+  async frozen(id: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id
+      }
+    });
+
+    if (!user)
+      throw new HttpException("用户不存在", HttpStatus.INTERNAL_SERVER_ERROR);
+    if (user.is_frozen)
+      throw new HttpException("用户已冻结", HttpStatus.INTERNAL_SERVER_ERROR);
+
+    if (user.is_deleted)
+      throw new HttpException("用户已删除", HttpStatus.INTERNAL_SERVER_ERROR);
+    await this.prismaService.user.update({
+      where: {
+        id
+      },
+      data: {
+        is_frozen: true
+      }
+    });
+
+    return "冻结成功";
   }
 }
