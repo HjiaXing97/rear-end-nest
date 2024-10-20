@@ -14,7 +14,8 @@ export class FormatResponseInterceptor implements NestInterceptor {
       map(data => ({
         statusCode: response.statusCode,
         message: "success",
-        data
+        data,
+        success: true
       }))
     );
   }

@@ -42,8 +42,9 @@ export class AlicloudService {
     const runtime = new $Util.RuntimeOptions({});
 
     try {
-      await this.client.sendSmsWithOptions(sendSmsRequest, runtime);
+      const res = await this.client.sendSmsWithOptions(sendSmsRequest, runtime);
       this.redisService.set(`captcha_${phone_number}`, param.templateParam);
+      console.log(res);
     } catch (error) {
       console.log(error);
     }

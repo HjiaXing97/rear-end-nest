@@ -109,18 +109,31 @@ export class UserService {
     return omit({ ...user, access_token, refresh_token }, "password");
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async findAll() {
+    return (
+      (await this.prismaService.user.findMany()) ??
+      [].map(item => omit(item, "password"))
+    );
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string) {
+    return omit(
+      await this.prismaService.user.findUnique({
+        where: {
+          id
+        }
+      }),
+      "password"
+    );
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    console.log(updateUserDto);
-
-    return `This action updates a #${id} user`;
+  update(id: string, updateUserDto: UpdateUserDto) {
+    return this.prismaService.user.update({
+      where: {
+        id
+      },
+      data: updateUserDto
+    });
   }
 
   remove(id: number) {
